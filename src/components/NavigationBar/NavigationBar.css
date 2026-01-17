@@ -1,0 +1,32 @@
+.navBar {
+  background-color: #1a1a1a;
+}
+
+.navToolbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.navTitle {
+  font-weight: bold;
+  color: #f7931a;
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navLogo {
+  width: 100%;
+  max-width: 130px;
+}
+
+.navUsername {
+  color: rgba(255, 255, 255, 0.87);
+}
+
+.navButton {
+  text-transform: none;
+}

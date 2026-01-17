@@ -1,0 +1,46 @@
+.homePageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  gap: 2rem;
+  padding: 7rem 0;
+}
+
+.bitwinLogo {
+  width: 100%;
+  max-width: 350px;
+}
+
+.priceCard {
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  margin-top: -4rem; /* Adjust for extra logo padding */
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.errorAlert {
+  margin: 1rem 0;
+}
+
+.priceDisplay {
+  margin: 1.5rem 0 !important;
+}
+
+.scoreCard {
+  padding: 2rem;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.scoreDisplay {
+  margin: 1.5rem 0 !important;
+}
