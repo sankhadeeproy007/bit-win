@@ -10,13 +10,13 @@ interface UseGuessOptions {
   onError?: (error: string) => void;
 }
 
-const TIMER_DURATION = 60;
+// const TIMER_DURATION = 60;
 
-export const useGuess = ({ userId, onSuccess, onError }: UseGuessOptions) => {
+export const useGuess = ({ userId }: UseGuessOptions) => {
   const [directionDialogOpen, setDirectionDialogOpen] = useState(false);
   const [timer, setTimer] = useState<number | null>(null);
   const {
-    placeGuess,
+    // placeGuess,
     loading: placingGuess,
     error: placeGuessError,
   } = usePlaceGuess();
@@ -42,18 +42,20 @@ export const useGuess = ({ userId, onSuccess, onError }: UseGuessOptions) => {
     setDirectionDialogOpen(false);
     if (!userId) return;
 
-    const result = await placeGuess(userId, direction);
-    console.log("result", result);
-    if (result) {
-      const { activeGuess } = result.type;
-      setTimer(TIMER_DURATION);
-      onSuccess?.({
-        direction: activeGuess?.direction as "up" | "down",
-        priceAtGuess: activeGuess?.priceAtGuess as number,
-      });
-    } else if (placeGuessError) {
-      onError?.(placeGuessError);
-    }
+    console.log("direction", direction);
+
+    // const result = await placeGuess(userId, direction);
+    // console.log("result", result);
+    // if (result) {
+    //   const { activeGuess } = result.type;
+    //   setTimer(TIMER_DURATION);
+    //   onSuccess?.({
+    //     direction: activeGuess?.direction as "up" | "down",
+    //     priceAtGuess: activeGuess?.priceAtGuess as number,
+    //   });
+    // } else if (placeGuessError) {
+    //   onError?.(placeGuessError);
+    // }
   };
 
   return {
