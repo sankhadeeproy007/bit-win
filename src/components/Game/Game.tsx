@@ -41,8 +41,7 @@ const Game = () => {
     timer,
     handleGuessSubmit,
     placingGuess,
-    hasActiveGuessTobeResolved,
-    handleResolveGuess,
+    resolvingGuess,
   } = useGuess({
     userId: user?.userId ?? null,
     onSuccess: ({ direction, priceAtGuess }) => {
@@ -85,9 +84,8 @@ const Game = () => {
           error={error}
           onPlaceGuess={handlePlaceGuess}
           timer={timer}
-          disabled={placingGuess || timer !== null}
-          hasActiveGuessTobeResolved={hasActiveGuessTobeResolved}
-          onResolveGuess={handleResolveGuess}
+          disabled={placingGuess || timer !== null || resolvingGuess}
+          resolvingGuess={resolvingGuess}
         />
 
         {isAuthenticated && (
@@ -123,8 +121,7 @@ interface PriceCardProps {
   onPlaceGuess: () => void;
   timer: number | null;
   disabled: boolean;
-  hasActiveGuessTobeResolved: boolean;
-  onResolveGuess: () => void;
+  resolvingGuess: boolean;
 }
 
 const PriceCard = ({
@@ -134,15 +131,14 @@ const PriceCard = ({
   onPlaceGuess,
   timer,
   disabled,
-  hasActiveGuessTobeResolved,
-  onResolveGuess,
+  resolvingGuess,
 }: PriceCardProps) => {
   const getButtonText = () => {
+    if (resolvingGuess) {
+      return "Resolving...";
+    }
     if (timer !== null) {
       return `Wait ${timer}s`;
-    }
-    if (hasActiveGuessTobeResolved) {
-      return "Resolve Guess";
     }
     return "Place Guess";
   };
@@ -175,7 +171,7 @@ const PriceCard = ({
         variant="contained"
         size="large"
         fullWidth
-        onClick={hasActiveGuessTobeResolved ? onResolveGuess : onPlaceGuess}
+        onClick={onPlaceGuess}
         disabled={loading || !!error || disabled}
       >
         {getButtonText()}

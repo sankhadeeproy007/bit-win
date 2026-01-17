@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { placeGuess, getActiveGuessStatus, resolveGuess } from "../api/guess";
-import { GUESS_DURATION_SECONDS } from "../constants/game";
+import { GUESS_DURATION_MS } from "../constants/game";
 
 interface UseGuessOptions {
   userId: string | null;
@@ -12,6 +12,10 @@ interface UseGuessOptions {
   onError?: (error: string) => void;
 }
 
+const getRemainingSeconds = (endTime: number): number => {
+  return Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+};
+
 export const useGuess = ({
   userId,
   onSuccess,
@@ -19,46 +23,73 @@ export const useGuess = ({
   onError,
 }: UseGuessOptions) => {
   const [directionDialogOpen, setDirectionDialogOpen] = useState(false);
+  const [endTime, setEndTime] = useState<number | null>(null);
   const [timer, setTimer] = useState<number | null>(null);
   const [placingGuess, setPlacingGuess] = useState(false);
-  const [canBeResolved, setCanBeResolved] = useState(false);
+  const [resolvingGuess, setResolvingGuess] = useState(false);
 
-  // Check active guess status on mount
+  const handleResolveGuess = useCallback(async () => {
+    if (!userId) return;
+    setResolvingGuess(true);
+    setEndTime(null);
+    setTimer(null);
+    try {
+      const result = await resolveGuess(userId);
+      onResolve?.(result);
+    } catch (error) {
+      onError?.(error as string);
+    } finally {
+      setResolvingGuess(false);
+    }
+  }, [userId, onResolve, onError]);
+
+  // Check active guess status on mount and auto-resolve if eligible
   useEffect(() => {
     if (!userId) return;
     const checkActiveGuessStatus = async () => {
       const status = await getActiveGuessStatus(userId);
-      if (status.hasActiveGuess) {
-        if (status.canBeResolved) {
-          setCanBeResolved(true);
-        } else if (status.remainingSeconds !== null) {
-          setTimer(status.remainingSeconds);
-        }
+      if (!status.hasActiveGuess) return;
+
+      if (status.canBeResolved) {
+        handleResolveGuess();
+      } else if (status.remainingSeconds !== null) {
+        setEndTime(Date.now() + status.remainingSeconds * 1000);
+        setTimer(status.remainingSeconds);
       }
     };
     checkActiveGuessStatus();
-  }, [userId]);
+  }, [userId, handleResolveGuess]);
 
+  // Timer using real timestamps to avoid browser throttling issues
   useEffect(() => {
-    if (timer === null || timer <= 0) {
-      if (timer === 0) {
-        setCanBeResolved(true);
-        setTimer(null);
+    if (endTime === null) return;
+
+    const updateTimer = () => {
+      const remaining = getRemainingSeconds(endTime);
+      setTimer(remaining);
+
+      if (remaining <= 0) {
+        handleResolveGuess();
       }
-      return;
-    }
+    };
 
-    const interval = setInterval(() => {
-      setTimer((prev) => {
-        if (prev === null || prev <= 1) {
-          return 0; // Will trigger canBeResolved on next render
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    updateTimer();
 
-    return () => clearInterval(interval);
-  }, [timer]);
+    const interval = setInterval(updateTimer, 1000);
+
+    // Recalculate when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        updateTimer();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [endTime, handleResolveGuess]);
 
   const handleGuessSubmit = async (direction: "up" | "down") => {
     setDirectionDialogOpen(false);
@@ -70,23 +101,11 @@ export const useGuess = ({
         direction: result.direction,
         priceAtGuess: result.priceAtGuess,
       });
-      setTimer(GUESS_DURATION_SECONDS);
+      setEndTime(Date.now() + GUESS_DURATION_MS);
     } catch (error) {
       onError?.(error as string);
     } finally {
       setPlacingGuess(false);
-    }
-  };
-
-  const handleResolveGuess = async () => {
-    if (!userId) return;
-    try {
-      const result = await resolveGuess(userId);
-      onResolve?.(result);
-    } catch (error) {
-      onError?.(error as string);
-    } finally {
-      setCanBeResolved(false);
     }
   };
 
@@ -96,7 +115,6 @@ export const useGuess = ({
     timer,
     handleGuessSubmit,
     placingGuess,
-    handleResolveGuess,
-    hasActiveGuessTobeResolved: canBeResolved,
+    resolvingGuess,
   };
 };
