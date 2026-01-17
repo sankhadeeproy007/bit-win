@@ -1,27 +1,31 @@
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import {
   Container,
-  Typography,
   Box,
-  Button,
-  Paper,
-  CircularProgress,
-  Alert,
   Snackbar,
   Slide,
+  Tooltip,
+  IconButton,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
+import { HelpOutline as HelpOutlineIcon } from "@mui/icons-material";
 import { useBitcoinPrice } from "@/hooks/useBitcoinPrice";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { usePlayerScore } from "@/hooks/usePlayerScore";
 import { useGuess } from "@/hooks/useGuess";
 import { DirectionGuessDialog } from "../DirectionGuessDialog/DirectionGuessDialog";
+import { Leaderboard } from "../Leaderboard/Leaderboard";
+import { PriceCard } from "../PriceCard/PriceCard";
+import { ScoreCard } from "../ScoreCard/ScoreCard";
+import { GameTooltip } from "../GameTooltip/GameTooltip";
 import logo from "@/assets/logo.png";
 import "./Game.css";
 
 const SNACKBAR_MESSAGE_DURATION = 6000;
 
 const Game = () => {
+  const theme = useTheme();
   const { price, loading, error } = useBitcoinPrice();
   const { isAuthenticated, user } = useAuth();
   const { openAuthModal } = useAuthModal();
@@ -33,7 +37,10 @@ const Game = () => {
   } = usePlayerScore(user?.userId ?? null);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState<ReactNode>("");
+
+  const successColor = theme.palette.success.main;
+  const errorColor = theme.palette.error.main;
 
   const {
     directionDialogOpen,
@@ -45,17 +52,31 @@ const Game = () => {
   } = useGuess({
     userId: user?.userId ?? null,
     onSuccess: ({ direction, priceAtGuess }) => {
+      const isUp = direction === "up";
       setSnackbarMessage(
-        `Guess placed! Price: ${priceAtGuess}. Direction: ${direction.toUpperCase()}.`
+        <span>
+          Guess placed! Price: <strong>${priceAtGuess}</strong>. Direction:{" "}
+          <strong style={{ color: isUp ? successColor : errorColor }}>
+            {direction.toUpperCase()}
+          </strong>
+        </span>
       );
       setSnackbarOpen(true);
     },
     onResolve: ({ isCorrect }) => {
       refetchScore();
       setSnackbarMessage(
-        isCorrect
-          ? "Great guess! You earned a point!"
-          : "Wrong guess! You lost a point."
+        isCorrect ? (
+          <span>
+            <strong style={{ color: successColor }}>Great guess!</strong> You
+            earned a point!
+          </span>
+        ) : (
+          <span>
+            <strong style={{ color: errorColor }}>Wrong guess!</strong> You lost
+            a point.
+          </span>
+        )
       );
       setSnackbarOpen(true);
     },
@@ -74,23 +95,44 @@ const Game = () => {
   };
 
   return (
-    <Container maxWidth="md">
-      <Box className="homePageContainer">
-        <img src={logo} alt="BitWin Logo" className="bitwinLogo" />
+    <Container maxWidth="lg">
+      <Box className="mainContent">
+        <Box className="gameArea">
+          <Box className="logoContainer">
+            <img src={logo} alt="BitWin Logo" className="bitwinLogo" />
+            <Tooltip title={<GameTooltip />} arrow placement="bottom">
+              <IconButton className="helpButton" size="small">
+                <HelpOutlineIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
 
-        <PriceCard
-          price={price}
-          loading={loading}
-          error={error}
-          onPlaceGuess={handlePlaceGuess}
-          timer={timer}
-          disabled={placingGuess || timer !== null || resolvingGuess}
-          resolvingGuess={resolvingGuess}
-        />
+          <PriceCard
+            price={price}
+            loading={loading}
+            error={error}
+            onPlaceGuess={handlePlaceGuess}
+            timer={timer}
+            disabled={placingGuess || timer !== null || resolvingGuess}
+            resolvingGuess={resolvingGuess}
+          />
 
-        {isAuthenticated && (
-          <ScoreCard score={score} loading={scoreLoading} error={scoreError} />
-        )}
+          {isAuthenticated && (
+            <ScoreCard
+              score={score}
+              loading={scoreLoading}
+              error={scoreError}
+            />
+          )}
+        </Box>
+
+        <Box className="leaderboardArea">
+          <Leaderboard
+            isAuthenticated={isAuthenticated}
+            onSignInClick={openAuthModal}
+            currentUserId={user?.userId}
+          />
+        </Box>
       </Box>
 
       <DirectionGuessDialog
@@ -111,106 +153,6 @@ const Game = () => {
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
       />
     </Container>
-  );
-};
-
-interface PriceCardProps {
-  price: string | null;
-  loading: boolean;
-  error: string | null;
-  onPlaceGuess: () => void;
-  timer: number | null;
-  disabled: boolean;
-  resolvingGuess: boolean;
-}
-
-const PriceCard = ({
-  price,
-  loading,
-  error,
-  onPlaceGuess,
-  timer,
-  disabled,
-  resolvingGuess,
-}: PriceCardProps) => {
-  const getButtonText = () => {
-    if (resolvingGuess) {
-      return "Resolving...";
-    }
-    if (timer !== null) {
-      return `Wait ${timer}s`;
-    }
-    return "Place Guess";
-  };
-
-  return (
-    <Paper elevation={3} className="priceCard">
-      <Typography variant="h6" color="primary" gutterBottom>
-        Current Bitcoin Price (BTC/USD)
-      </Typography>
-
-      {loading && (
-        <Box className="loadingContainer">
-          <CircularProgress />
-        </Box>
-      )}
-
-      {error && (
-        <Alert severity="error" className="errorAlert">
-          {error}
-        </Alert>
-      )}
-
-      {price && !loading && (
-        <Typography variant="h2" color="primary" className="priceDisplay">
-          {price}
-        </Typography>
-      )}
-
-      <Button
-        variant="contained"
-        size="large"
-        fullWidth
-        onClick={onPlaceGuess}
-        disabled={loading || !!error || disabled}
-      >
-        {getButtonText()}
-      </Button>
-    </Paper>
-  );
-};
-
-interface ScoreCardProps {
-  score: number | null;
-  loading: boolean;
-  error: string | null;
-}
-
-const ScoreCard = ({ score, loading, error }: ScoreCardProps) => {
-  return (
-    <Paper elevation={3} className="scoreCard">
-      <Typography variant="h6" color="primary" gutterBottom>
-        Your Score
-      </Typography>
-
-      {loading && (
-        <Box className="loadingContainer">
-          <CircularProgress size={24} />
-        </Box>
-      )}
-
-      {error && (
-        <Alert severity="error" className="errorAlert">
-          {error}
-        </Alert>
-      )}
-
-      {!loading && !error && score !== null && (
-        <Typography variant="h3" color="primary" className="scoreDisplay">
-          {score}
-        </Typography>
-      )}
-    </Paper>
   );
 };
 
