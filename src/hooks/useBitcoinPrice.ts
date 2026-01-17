@@ -1,26 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-
-const BITCOIN_API_URL = "https://api.coinbase.com/v2/prices/BTC-USD/spot";
+import { fetchBitcoinPrice, formatPrice } from "../api/bitcoinPrice";
 
 const PRICE_UPDATE_INTERVAL = 5000;
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(price);
-};
-
-const fetchBitcoinPrice = async (): Promise<number> => {
-  const response = await fetch(BITCOIN_API_URL);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch Bitcoin price: ${response.statusText}`);
-  }
-  const data = await response.json();
-  return parseFloat(data.data.amount);
-};
 
 export const useBitcoinPrice = () => {
   const [price, setPrice] = useState<number | null>(null);
@@ -49,10 +30,8 @@ export const useBitcoinPrice = () => {
       }
     };
 
-    // Fetch immediately
     updatePrice();
 
-    // Then fetch every 5 seconds
     intervalId = setInterval(updatePrice, PRICE_UPDATE_INTERVAL);
 
     return () => {

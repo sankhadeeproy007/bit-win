@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { usePlaceGuess } from "./usePlaceGuess";
+import { placeGuess, getActiveGuessStatus, resolveGuess } from "../api/guess";
+import { GUESS_DURATION_SECONDS } from "../constants/game";
 
 interface UseGuessOptions {
   userId: string | null;
@@ -7,29 +8,50 @@ interface UseGuessOptions {
     direction: "up" | "down";
     priceAtGuess: number;
   }) => void;
+  onResolve?: (result: { isCorrect: boolean }) => void;
   onError?: (error: string) => void;
 }
 
-// const TIMER_DURATION = 60;
-
-export const useGuess = ({ userId }: UseGuessOptions) => {
+export const useGuess = ({
+  userId,
+  onSuccess,
+  onResolve,
+  onError,
+}: UseGuessOptions) => {
   const [directionDialogOpen, setDirectionDialogOpen] = useState(false);
   const [timer, setTimer] = useState<number | null>(null);
-  const {
-    // placeGuess,
-    loading: placingGuess,
-    error: placeGuessError,
-  } = usePlaceGuess();
+  const [placingGuess, setPlacingGuess] = useState(false);
+  const [canBeResolved, setCanBeResolved] = useState(false);
+
+  // Check active guess status on mount
+  useEffect(() => {
+    if (!userId) return;
+    const checkActiveGuessStatus = async () => {
+      const status = await getActiveGuessStatus(userId);
+      if (status.hasActiveGuess) {
+        if (status.canBeResolved) {
+          setCanBeResolved(true);
+        } else if (status.remainingSeconds !== null) {
+          setTimer(status.remainingSeconds);
+        }
+      }
+    };
+    checkActiveGuessStatus();
+  }, [userId]);
 
   useEffect(() => {
     if (timer === null || timer <= 0) {
+      if (timer === 0) {
+        setCanBeResolved(true);
+        setTimer(null);
+      }
       return;
     }
 
     const interval = setInterval(() => {
       setTimer((prev) => {
         if (prev === null || prev <= 1) {
-          return null;
+          return 0; // Will trigger canBeResolved on next render
         }
         return prev - 1;
       });
@@ -38,32 +60,43 @@ export const useGuess = ({ userId }: UseGuessOptions) => {
     return () => clearInterval(interval);
   }, [timer]);
 
-  const handleDirectionSelect = async (direction: "up" | "down") => {
+  const handleGuessSubmit = async (direction: "up" | "down") => {
     setDirectionDialogOpen(false);
     if (!userId) return;
+    setPlacingGuess(true);
+    try {
+      const result = await placeGuess(userId, direction);
+      onSuccess?.({
+        direction: result.direction,
+        priceAtGuess: result.priceAtGuess,
+      });
+      setTimer(GUESS_DURATION_SECONDS);
+    } catch (error) {
+      onError?.(error as string);
+    } finally {
+      setPlacingGuess(false);
+    }
+  };
 
-    console.log("direction", direction);
-
-    // const result = await placeGuess(userId, direction);
-    // console.log("result", result);
-    // if (result) {
-    //   const { activeGuess } = result.type;
-    //   setTimer(TIMER_DURATION);
-    //   onSuccess?.({
-    //     direction: activeGuess?.direction as "up" | "down",
-    //     priceAtGuess: activeGuess?.priceAtGuess as number,
-    //   });
-    // } else if (placeGuessError) {
-    //   onError?.(placeGuessError);
-    // }
+  const handleResolveGuess = async () => {
+    if (!userId) return;
+    try {
+      const result = await resolveGuess(userId);
+      onResolve?.(result);
+    } catch (error) {
+      onError?.(error as string);
+    } finally {
+      setCanBeResolved(false);
+    }
   };
 
   return {
     directionDialogOpen,
     setDirectionDialogOpen,
     timer,
-    handleDirectionSelect,
+    handleGuessSubmit,
     placingGuess,
-    placeGuessError,
+    handleResolveGuess,
+    hasActiveGuessTobeResolved: canBeResolved,
   };
 };

@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { signIn, signUp, autoSignIn } from "aws-amplify/auth";
-import { generateClient } from "aws-amplify/data";
-import type { Schema } from "../../amplify/data/resource";
+import { signIn, signUp } from "../api/auth";
 
 interface UseAuthFormProps {
   onSuccess: () => void;
@@ -26,23 +24,12 @@ export const useAuthForm = ({ onSuccess, onClose }: UseAuthFormProps) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const client = generateClient<Schema>();
-
   const clearForm = () => {
     setFormData(initialFormData);
   };
 
   const updateField = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const createPlayer = async (email: string) => {
-    const result = await client.models.Player.create({
-      email,
-      score: 0,
-      activeGuess: null,
-    });
-    return result;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,10 +39,7 @@ export const useAuthForm = ({ onSuccess, onClose }: UseAuthFormProps) => {
 
     try {
       if (isSignIn) {
-        await signIn({
-          username: formData.email,
-          password: formData.password,
-        });
+        await signIn(formData.email, formData.password);
       } else {
         if (!formData.email) {
           setError("Email is required");
@@ -69,23 +53,7 @@ export const useAuthForm = ({ onSuccess, onClose }: UseAuthFormProps) => {
           return;
         }
 
-        await signUp({
-          username: formData.email,
-          password: formData.password,
-          options: {
-            userAttributes: {
-              email: formData.email,
-            },
-            autoSignIn: {
-              enabled: true,
-            },
-          },
-        });
-
-        await autoSignIn();
-
-        // Create the Player record in the database
-        await createPlayer(formData.email);
+        await signUp(formData.email, formData.password);
       }
 
       onSuccess();

@@ -1,13 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
+
+const client = generateClient<Schema>();
 
 export const usePlayerScore = (userId: string | null) => {
   const [score, setScore] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchScore = useCallback(async () => {
     if (!userId) {
       setScore(null);
       setLoading(false);
@@ -15,35 +17,33 @@ export const usePlayerScore = (userId: string | null) => {
       return;
     }
 
-    const client = generateClient<Schema>();
+    setLoading(true);
+    setError(null);
+    try {
+      const { data: playerData, errors } = await client.models.Player.get(
+        { id: userId },
+        { authMode: "apiKey" }
+      );
 
-    const fetchScore = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data: playerData, errors } = await client.models.Player.get(
-          { id: userId },
-          { authMode: "apiKey" }
-        );
-
-        if (errors) {
-          setError("Failed to fetch player score");
-          setScore(null);
-        } else if (playerData) {
-          setScore(playerData.score ?? 0);
-        } else {
-          setScore(0);
-        }
-      } catch {
+      if (errors) {
         setError("Failed to fetch player score");
         setScore(null);
-      } finally {
-        setLoading(false);
+      } else if (playerData) {
+        setScore(playerData.score ?? 0);
+      } else {
+        setScore(0);
       }
-    };
-
-    fetchScore();
+    } catch {
+      setError("Failed to fetch player score");
+      setScore(null);
+    } finally {
+      setLoading(false);
+    }
   }, [userId]);
 
-  return { score, loading, error };
+  useEffect(() => {
+    fetchScore();
+  }, [fetchScore]);
+
+  return { score, loading, error, refetchScore: fetchScore };
 };

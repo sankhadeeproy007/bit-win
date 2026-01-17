@@ -22,10 +22,10 @@ export const DirectionGuessDialog = ({
 }: DirectionGuessDialogProps) => {
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Select Direction</DialogTitle>
+      <DialogTitle>So, what do you think?</DialogTitle>
       <DialogContent>
         <Typography variant="body1" gutterBottom>
-          Choose whether you think the Bitcoin price will go up or down:
+          Choose your side: To the moon or to the depths of hell?
         </Typography>
       </DialogContent>
       <DialogActions>
@@ -35,7 +35,7 @@ export const DirectionGuessDialog = ({
           color="success"
           disabled={loading}
         >
-          UP
+          Going UP
         </Button>
         <Button
           onClick={() => onDirectionSelect("down")}
@@ -43,7 +43,7 @@ export const DirectionGuessDialog = ({
           color="error"
           disabled={loading}
         >
-          DOWN
+          Going DOWN
         </Button>
         <Button onClick={onClose}>Cancel</Button>
       </DialogActions>

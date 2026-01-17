@@ -8,6 +8,7 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
+  Slide,
 } from "@mui/material";
 import { useBitcoinPrice } from "@/hooks/useBitcoinPrice";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,6 +19,8 @@ import { DirectionGuessDialog } from "../DirectionGuessDialog/DirectionGuessDial
 import logo from "@/assets/logo.png";
 import "./Game.css";
 
+const SNACKBAR_MESSAGE_DURATION = 6000;
+
 const Game = () => {
   const { price, loading, error } = useBitcoinPrice();
   const { isAuthenticated, user } = useAuth();
@@ -26,6 +29,7 @@ const Game = () => {
     score,
     loading: scoreLoading,
     error: scoreError,
+    refetchScore,
   } = usePlayerScore(user?.userId ?? null);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -35,13 +39,24 @@ const Game = () => {
     directionDialogOpen,
     setDirectionDialogOpen,
     timer,
-    handleDirectionSelect,
+    handleGuessSubmit,
     placingGuess,
+    hasActiveGuessTobeResolved,
+    handleResolveGuess,
   } = useGuess({
     userId: user?.userId ?? null,
     onSuccess: ({ direction, priceAtGuess }) => {
       setSnackbarMessage(
-        `Guess placed! Direction: ${direction.toUpperCase()}, Price: $${priceAtGuess.toFixed(2)}. Time left: 60 seconds.`
+        `Guess placed! Price: ${priceAtGuess}. Direction: ${direction.toUpperCase()}.`
+      );
+      setSnackbarOpen(true);
+    },
+    onResolve: ({ isCorrect }) => {
+      refetchScore();
+      setSnackbarMessage(
+        isCorrect
+          ? "Great guess! You earned a point!"
+          : "Wrong guess! You lost a point."
       );
       setSnackbarOpen(true);
     },
@@ -71,6 +86,8 @@ const Game = () => {
           onPlaceGuess={handlePlaceGuess}
           timer={timer}
           disabled={placingGuess || timer !== null}
+          hasActiveGuessTobeResolved={hasActiveGuessTobeResolved}
+          onResolveGuess={handleResolveGuess}
         />
 
         {isAuthenticated && (
@@ -81,15 +98,19 @@ const Game = () => {
       <DirectionGuessDialog
         open={directionDialogOpen}
         onClose={() => setDirectionDialogOpen(false)}
-        onDirectionSelect={handleDirectionSelect}
+        onDirectionSelect={handleGuessSubmit}
         loading={placingGuess}
       />
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={6000}
+        autoHideDuration={SNACKBAR_MESSAGE_DURATION}
         onClose={() => setSnackbarOpen(false)}
+        slots={{
+          transition: Slide,
+        }}
         message={snackbarMessage}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       />
     </Container>
   );
@@ -102,6 +123,8 @@ interface PriceCardProps {
   onPlaceGuess: () => void;
   timer: number | null;
   disabled: boolean;
+  hasActiveGuessTobeResolved: boolean;
+  onResolveGuess: () => void;
 }
 
 const PriceCard = ({
@@ -111,10 +134,15 @@ const PriceCard = ({
   onPlaceGuess,
   timer,
   disabled,
+  hasActiveGuessTobeResolved,
+  onResolveGuess,
 }: PriceCardProps) => {
   const getButtonText = () => {
     if (timer !== null) {
       return `Wait ${timer}s`;
+    }
+    if (hasActiveGuessTobeResolved) {
+      return "Resolve Guess";
     }
     return "Place Guess";
   };
@@ -147,7 +175,7 @@ const PriceCard = ({
         variant="contained"
         size="large"
         fullWidth
-        onClick={onPlaceGuess}
+        onClick={hasActiveGuessTobeResolved ? onResolveGuess : onPlaceGuess}
         disabled={loading || !!error || disabled}
       >
         {getButtonText()}
