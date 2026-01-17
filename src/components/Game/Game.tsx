@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react";
+import { useState, ReactNode, useCallback } from "react";
 import {
   Container,
   Box,
@@ -42,16 +42,14 @@ const Game = () => {
   const successColor = theme.palette.success.main;
   const errorColor = theme.palette.error.main;
 
-  const {
-    directionDialogOpen,
-    setDirectionDialogOpen,
-    timer,
-    handleGuessSubmit,
-    placingGuess,
-    resolvingGuess,
-  } = useGuess({
-    userId: user?.userId ?? null,
-    onSuccess: ({ direction, priceAtGuess }) => {
+  const handleGuessSuccess = useCallback(
+    ({
+      direction,
+      priceAtGuess,
+    }: {
+      direction: "up" | "down";
+      priceAtGuess: number;
+    }) => {
       const isUp = direction === "up";
       setSnackbarMessage(
         <span>
@@ -63,7 +61,11 @@ const Game = () => {
       );
       setSnackbarOpen(true);
     },
-    onResolve: ({ isCorrect }) => {
+    [successColor, errorColor]
+  );
+
+  const handleGuessResolve = useCallback(
+    ({ isCorrect }: { isCorrect: boolean }) => {
       refetchScore();
       setSnackbarMessage(
         isCorrect ? (
@@ -80,10 +82,26 @@ const Game = () => {
       );
       setSnackbarOpen(true);
     },
-    onError: (error) => {
-      setSnackbarMessage(`Failed to place guess: ${error}`);
-      setSnackbarOpen(true);
-    },
+    [successColor, errorColor, refetchScore]
+  );
+
+  const handleGuessError = useCallback((error: string) => {
+    setSnackbarMessage(`Failed to place guess: ${error}`);
+    setSnackbarOpen(true);
+  }, []);
+
+  const {
+    directionDialogOpen,
+    setDirectionDialogOpen,
+    timer,
+    handleGuessSubmit,
+    placingGuess,
+    resolvingGuess,
+  } = useGuess({
+    userId: user?.userId ?? null,
+    onSuccess: handleGuessSuccess,
+    onResolve: handleGuessResolve,
+    onError: handleGuessError,
   });
 
   const handlePlaceGuess = () => {
