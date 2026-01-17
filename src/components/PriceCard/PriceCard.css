@@ -1,0 +1,21 @@
+.priceCard {
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  border: 1px solid rgba(247, 147, 26, 0.3);
+}
+
+.priceCardLoading {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.priceCardError {
+  margin: 1rem 0;
+}
+
+.priceDisplay {
+  margin: 1.5rem 0 !important;
+}

@@ -17,7 +17,12 @@ const schema = a.schema({
       email: a.string(),
       score: a.integer(),
       activeGuess: a.json(),
+      // Partition key for leaderboard GSI - all players share the same value
+      leaderboardGroup: a.string().default("GLOBAL"),
     })
+    .secondaryIndexes((index) => [
+      index("leaderboardGroup").sortKeys(["score"]).name("byScore"),
+    ])
     .authorization((allow) => [allow.publicApiKey()]),
 });
 

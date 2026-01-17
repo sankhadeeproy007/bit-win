@@ -17,6 +17,13 @@ export const CustomThemeProvider = ({ children }: CustomThemeProviderProps) => {
             main: "#f7931a", // Bitcoin orange
           },
         },
+        typography: {
+          fontFamily:
+            '"Quicksand", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          fontWeightRegular: 500,
+          fontWeightMedium: 600,
+          fontWeightBold: 700,
+        },
       }),
     []
   );

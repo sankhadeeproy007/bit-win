@@ -21,14 +21,14 @@ export const DirectionGuessDialog = ({
   loading,
 }: DirectionGuessDialogProps) => {
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>So, what do you think?</DialogTitle>
       <DialogContent>
         <Typography variant="body1" gutterBottom>
           Choose your side: To the moon or to the depths of hell?
         </Typography>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ padding: "20px" }}>
         <Button
           onClick={() => onDirectionSelect("up")}
           variant="contained"

@@ -10,12 +10,16 @@ import type { Schema } from "../../amplify/data/resource";
 const client = generateClient<Schema>();
 
 const createPlayer = async (userId: string, email: string) => {
-  await client.models.Player.create({
-    id: userId,
-    email,
-    score: 0,
-    activeGuess: null,
-  });
+  await client.models.Player.create(
+    {
+      id: userId,
+      email,
+      score: 0,
+      activeGuess: null,
+      leaderboardGroup: "GLOBAL",
+    },
+    { authMode: "apiKey" }
+  );
 };
 
 export const signIn = async (email: string, password: string) => {

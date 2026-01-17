@@ -1,46 +1,69 @@
-.homePageContainer {
+.mainContent {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  min-height: 100vh;
+  padding: 3rem 0;
+  align-items: flex-start;
+}
+
+.gameArea {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
-  gap: 2rem;
-  padding: 7rem 0;
+  gap: 1.5rem;
+}
+
+.logoContainer {
+  position: relative;
+  display: inline-block;
 }
 
 .bitwinLogo {
   width: 100%;
-  max-width: 350px;
+  max-width: 280px;
 }
 
-.priceCard {
-  padding: 2rem;
-  width: 100%;
-  max-width: 500px;
-  text-align: center;
-  margin-top: -4rem; /* Adjust for extra logo padding */
+.helpButton {
+  position: absolute !important;
+  top: 2em;
+  right: 1.5rem;
+  color: rgba(247, 147, 26, 0.7) !important;
 }
 
-.loadingContainer {
-  display: flex;
-  justify-content: center;
-  margin: 2rem 0;
+.helpButton:hover {
+  color: #f7931a !important;
 }
 
-.errorAlert {
-  margin: 1rem 0;
+.leaderboardArea {
+  flex: 0 0 300px;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+  margin-top: 19rem;
 }
 
-.priceDisplay {
-  margin: 1.5rem 0 !important;
+.leaderboardArea:hover {
+  opacity: 1;
 }
 
-.scoreCard {
-  padding: 2rem;
-  width: 100%;
-  max-width: 500px;
-  text-align: center;
-}
+/* Responsive: stack vertically on smaller screens */
+@media (max-width: 900px) {
+  .mainContent {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
 
-.scoreDisplay {
-  margin: 1.5rem 0 !important;
+  .gameArea,
+  .leaderboardArea {
+    flex: none;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 0;
+  }
+
+  .helpButton {
+    right: -2rem;
+  }
 }
