@@ -31,7 +31,7 @@ export const useGuess = ({
   const [resolvingGuess, setResolvingGuess] = useState(false);
 
   const handleResolveGuess = useCallback(async () => {
-    if (!userId) return;
+    if (!userId || resolvingGuess) return; // Guard against concurrent resolves
     setResolvingGuess(true);
     try {
       const result = await resolveGuess(userId);
@@ -53,7 +53,7 @@ export const useGuess = ({
     } finally {
       setResolvingGuess(false);
     }
-  }, [userId, onResolve, onTimerRestart, onError]);
+  }, [userId, onResolve, onTimerRestart, onError, resolvingGuess]);
 
   // Check active guess status on mount and auto-resolve if eligible
   useEffect(() => {
