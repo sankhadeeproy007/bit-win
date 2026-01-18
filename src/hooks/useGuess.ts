@@ -9,6 +9,7 @@ interface UseGuessOptions {
     priceAtGuess: number;
   }) => void;
   onResolve?: (result: { isCorrect: boolean }) => void;
+  onTimerRestart?: () => void;
   onError?: (error: string) => void;
 }
 
@@ -20,6 +21,7 @@ export const useGuess = ({
   userId,
   onSuccess,
   onResolve,
+  onTimerRestart,
   onError,
 }: UseGuessOptions) => {
   const [directionDialogOpen, setDirectionDialogOpen] = useState(false);
@@ -31,17 +33,27 @@ export const useGuess = ({
   const handleResolveGuess = useCallback(async () => {
     if (!userId) return;
     setResolvingGuess(true);
-    setEndTime(null);
-    setTimer(null);
     try {
       const result = await resolveGuess(userId);
-      onResolve?.(result);
+
+      if (result.timerRestarted) {
+        // Price didn't change, restart the timer
+        setEndTime(Date.now() + GUESS_DURATION_MS);
+        onTimerRestart?.();
+      } else if (result.resolved && result.isCorrect !== undefined) {
+        // Guess was resolved
+        setEndTime(null);
+        setTimer(null);
+        onResolve?.({ isCorrect: result.isCorrect });
+      }
     } catch (error) {
+      setEndTime(null);
+      setTimer(null);
       onError?.(error as string);
     } finally {
       setResolvingGuess(false);
     }
-  }, [userId, onResolve, onError]);
+  }, [userId, onResolve, onTimerRestart, onError]);
 
   // Check active guess status on mount and auto-resolve if eligible
   useEffect(() => {

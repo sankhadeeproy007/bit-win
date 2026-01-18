@@ -29,8 +29,16 @@ const DUMMY_LEADERBOARD = [
   { id: "5", email: "j***e@proton.me", score: 28, rank: 5 },
   { id: "6", email: "a***n@gmail.com", score: 24, rank: 6 },
   { id: "7", email: "t***r@yahoo.com", score: 21, rank: 7 },
-  { id: "8", email: "k***a@outlook.com", score: 18, rank: 8 },
 ];
+const maskEmail = (email: string): string => {
+  const [localPart, domain] = email.split("@");
+  if (!domain) return "***";
+  const maskedLocal =
+    localPart.length > 2
+      ? localPart[0] + "***" + localPart[localPart.length - 1]
+      : "***";
+  return `${maskedLocal}@${domain}`;
+};
 
 export const Leaderboard = ({
   isAuthenticated,
@@ -40,16 +48,6 @@ export const Leaderboard = ({
   const { leaderboard, loading, error, refetch } = useLeaderboard({
     enabled: isAuthenticated,
   });
-
-  const maskEmail = (email: string): string => {
-    const [localPart, domain] = email.split("@");
-    if (!domain) return "***";
-    const maskedLocal =
-      localPart.length > 2
-        ? localPart[0] + "***" + localPart[localPart.length - 1]
-        : "***";
-    return `${maskedLocal}@${domain}`;
-  };
 
   const displayData = isAuthenticated ? leaderboard : DUMMY_LEADERBOARD;
 

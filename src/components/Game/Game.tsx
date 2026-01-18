@@ -90,6 +90,13 @@ const Game = () => {
     setSnackbarOpen(true);
   }, []);
 
+  const handleTimerRestart = useCallback(() => {
+    setSnackbarMessage(
+      "Price hasn't changed yet. Timer restarted for another 60 seconds."
+    );
+    setSnackbarOpen(true);
+  }, []);
+
   const {
     directionDialogOpen,
     setDirectionDialogOpen,
@@ -101,6 +108,7 @@ const Game = () => {
     userId: user?.userId ?? null,
     onSuccess: handleGuessSuccess,
     onResolve: handleGuessResolve,
+    onTimerRestart: handleTimerRestart,
     onError: handleGuessError,
   });
 
