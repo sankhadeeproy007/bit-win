@@ -51,7 +51,15 @@ export const placeGuess = async (userId: string, direction: "up" | "down") => {
   };
 };
 
-export const resolveGuess = async (userId: string) => {
+export interface ResolveGuessResult {
+  resolved: boolean;
+  isCorrect?: boolean;
+  timerRestarted?: boolean;
+}
+
+export const resolveGuess = async (
+  userId: string
+): Promise<ResolveGuessResult> => {
   const { data: playerData } = await client.models.Player.get(
     { id: userId },
     { authMode: "apiKey" }
@@ -73,6 +81,31 @@ export const resolveGuess = async (userId: string) => {
 
   const currentPrice = Math.round((await fetchBitcoinPrice()) * 100) / 100; // round to 2 decimal places
 
+  // If price hasn't changed, restart the timer
+  if (currentPrice === activeGuessData.priceAtGuess) {
+    const newGuessedAt = new Date().toISOString();
+    const { errors: updateErrors } = await client.models.Player.update(
+      {
+        id: userId,
+        activeGuess: JSON.stringify({
+          ...activeGuessData,
+          guessedAt: newGuessedAt,
+        }),
+      },
+      { authMode: "apiKey" }
+    );
+
+    if (updateErrors) {
+      console.log(updateErrors);
+      throw new Error("Failed to restart timer");
+    }
+
+    return {
+      resolved: false,
+      timerRestarted: true,
+    };
+  }
+
   const isCorrect =
     activeGuessData.direction === "up"
       ? currentPrice > activeGuessData.priceAtGuess
@@ -93,6 +126,7 @@ export const resolveGuess = async (userId: string) => {
   }
 
   return {
+    resolved: true,
     isCorrect,
   };
 };

@@ -1,0 +1,13 @@
+.errorBoundaryContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.errorBoundaryCard {
+  padding: 3rem;
+  text-align: center;
+  max-width: 500px;
+}

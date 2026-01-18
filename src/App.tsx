@@ -2,6 +2,7 @@ import Game from "@/components/Game/Game";
 import NavigationBar from "@/components/NavigationBar/NavigationBar";
 import AuthModal from "@/components/AuthModal/AuthModal";
 import { AuthModalProvider } from "@/contexts/AuthModalProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary/ErrorBoundary";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -17,7 +18,9 @@ const AppContent = () => {
   return (
     <>
       <NavigationBar />
-      <Game />
+      <ErrorBoundary>
+        <Game />
+      </ErrorBoundary>
       <AuthModal
         open={isOpen}
         onClose={closeAuthModal}
@@ -29,9 +32,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <AuthModalProvider>
-      <AppContent />
-    </AuthModalProvider>
+    <ErrorBoundary>
+      <AuthModalProvider>
+        <AppContent />
+      </AuthModalProvider>
+    </ErrorBoundary>
   );
 }
 
