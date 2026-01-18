@@ -14,11 +14,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
 import { usePlayerScore } from "@/hooks/usePlayerScore";
 import { useGuess } from "@/hooks/useGuess";
-import { DirectionGuessDialog } from "../DirectionGuessDialog/DirectionGuessDialog";
-import { Leaderboard } from "../Leaderboard/Leaderboard";
-import { PriceCard } from "../PriceCard/PriceCard";
-import { ScoreCard } from "../ScoreCard/ScoreCard";
-import { GameTooltip } from "../GameTooltip/GameTooltip";
+import { DirectionGuessDialog } from "@/components/DirectionGuessDialog/DirectionGuessDialog";
+import { Leaderboard } from "@/components/Leaderboard/Leaderboard";
+import { PriceCard } from "@/components/PriceCard/PriceCard";
+import { ScoreCard } from "@/components/ScoreCard/ScoreCard";
+import { GameTooltip } from "@/components/GameTooltip/GameTooltip";
 import logo from "@/assets/logo.png";
 import "./Game.css";
 
