@@ -90,7 +90,6 @@ describe("useGuess", () => {
     vi.mocked(placeGuess).mockResolvedValue({
       direction: "up",
       priceAtGuess: 50000,
-      guessedAt: new Date().toISOString(),
     });
 
     const { result } = renderHook(() =>

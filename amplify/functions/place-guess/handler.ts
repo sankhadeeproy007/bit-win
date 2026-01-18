@@ -7,7 +7,6 @@ import type { Schema } from "../../data/resource";
 
 const BITCOIN_API_URL = "https://api.coinbase.com/v2/prices/BTC-USD/spot";
 
-// Configure Amplify for server-side usage
 const { resourceConfig, libraryOptions } =
   await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
@@ -40,7 +39,6 @@ export const handler: AppSyncResolverHandler<
 > = async (event) => {
   const { playerId, direction } = event.arguments;
 
-  // Get the player data
   const { data: playerData, errors } = await client.models.Player.get({
     id: playerId,
   });

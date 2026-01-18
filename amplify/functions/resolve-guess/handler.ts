@@ -6,9 +6,8 @@ import { env } from "$amplify/env/resolve-guess";
 import type { Schema } from "../../data/resource";
 
 const BITCOIN_API_URL = "https://api.coinbase.com/v2/prices/BTC-USD/spot";
-const GUESS_DURATION_MS = 60 * 1000; // 60 seconds
+const GUESS_DURATION_MS = 60 * 1000;
 
-// Configure Amplify for server-side usage
 const { resourceConfig, libraryOptions } =
   await getAmplifyDataClientConfig(env);
 Amplify.configure(resourceConfig, libraryOptions);
@@ -40,7 +39,6 @@ export const handler: AppSyncResolverHandler<
 > = async (event) => {
   const { playerId } = event.arguments;
 
-  // Get the player data
   const { data: playerData, errors } = await client.models.Player.get({
     id: playerId,
   });
@@ -92,7 +90,6 @@ export const handler: AppSyncResolverHandler<
       ? currentPrice > activeGuessData.priceAtGuess
       : currentPrice < activeGuessData.priceAtGuess;
 
-  // Update the player score and clear active guess
   const { errors: updateErrors } = await client.models.Player.update({
     id: playerId,
     score: (playerData?.score ?? 0) + (isCorrect ? 1 : -1),

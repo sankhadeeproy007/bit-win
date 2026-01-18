@@ -21,6 +21,7 @@ import { ScoreCard } from "@/components/ScoreCard/ScoreCard";
 import { GameTooltip } from "@/components/GameTooltip/GameTooltip";
 import logo from "@/assets/logo.png";
 import "./Game.css";
+import { GUESS_DURATION_SECONDS } from "@/constants/game";
 
 const SNACKBAR_MESSAGE_DURATION = 6000;
 
@@ -92,7 +93,7 @@ const Game = () => {
 
   const handleTimerRestart = useCallback(() => {
     setSnackbarMessage(
-      "Price hasn't changed yet. Timer restarted for another 60 seconds."
+      `Price hasn't changed yet. Timer restarted for another ${GUESS_DURATION_SECONDS} seconds.`
     );
     setSnackbarOpen(true);
   }, []);

@@ -1,4 +1,4 @@
-# BitWin - Bitcoin Price Prediction Game
+![Project Logo](src/assets/logo_small.png)
 
 A real-time Bitcoin price prediction game built with React and AWS Amplify Gen2. Guess whether the Bitcoin price will go up or down within 60 seconds and compete on the global leaderboard.
 
@@ -39,34 +39,6 @@ The app will be available at `http://localhost:5173`
 - AWS AppSync (GraphQL API)
 - AWS Lambda (Serverless Functions)
 - AWS DynamoDB (Database)
-
-## Project Structure
-
-```
-bit-win/
-├── amplify/                    # AWS Amplify backend
-│   ├── auth/                   # Authentication & triggers
-│   ├── data/                   # GraphQL schema
-│   └── functions/              # Lambda functions
-├── src/                        # React frontend
-│   ├── api/                    # API functions
-│   ├── components/             # UI components
-│   ├── hooks/                  # Custom hooks
-│   └── contexts/               # React contexts
-├── docs/                       # Documentation
-└── package.json
-```
-
-## Scripts
-
-| Command         | Description              |
-| --------------- | ------------------------ |
-| `npm run dev`   | Start development server |
-| `npm run build` | Build for production     |
-| `npm run test`  | Run tests                |
-| `npm run lint`  | Run ESLint               |
-
-
 
 ## License
 

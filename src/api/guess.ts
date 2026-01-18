@@ -20,7 +20,6 @@ export const placeGuess = async (userId: string, direction: "up" | "down") => {
   return {
     direction: data.direction as "up" | "down",
     priceAtGuess: data.priceAtGuess,
-    guessedAt: data.guessedAt,
   };
 };
 
