@@ -86,7 +86,7 @@ const Game = () => {
   );
 
   const handleGuessError = useCallback((error: string) => {
-    setSnackbarMessage(`Failed to place guess: ${error}`);
+    setSnackbarMessage(`Failed to resolve guess: ${error}`);
     setSnackbarOpen(true);
   }, []);
 
