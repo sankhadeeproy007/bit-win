@@ -72,7 +72,6 @@ export const useGuess = ({
     checkActiveGuessStatus();
   }, [userId, handleResolveGuess]);
 
-  // Timer using real timestamps to avoid browser throttling issues
   useEffect(() => {
     if (endTime === null) return;
 

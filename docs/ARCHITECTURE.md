@@ -1,11 +1,5 @@
 # BitWin System Architecture
 
-This document describes the system design and data flow architecture of the BitWin application - a Bitcoin price prediction game built with React and AWS Amplify Gen2.
-
-## Overview
-
-BitWin is a real-time Bitcoin price prediction game where users guess whether the BTC price will go up or down within 60 seconds. The application uses a serverless architecture with AWS services for authentication, data storage, and business logic.
-
 ## Architecture Diagram
 
 ```
