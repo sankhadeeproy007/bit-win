@@ -1,7 +1,6 @@
 ![Project Logo](src/assets/logo_small.png)
 
-A real-time Bitcoin price prediction game built with React and AWS Amplify Gen2. Guess whether the Bitcoin price will go up or down within 60 seconds and compete on the global leaderboard.
-
+A real-time Bitcoin price prediction game built with React and AWS Amplify Gen2.
 ## Documentation
 
 | Document                                 | Description                               |
