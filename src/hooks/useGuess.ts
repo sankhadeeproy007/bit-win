@@ -24,7 +24,6 @@ export const useGuess = ({
   onTimerRestart,
   onError,
 }: UseGuessOptions) => {
-  const [directionDialogOpen, setDirectionDialogOpen] = useState(false);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [timer, setTimer] = useState<number | null>(null);
   const [placingGuess, setPlacingGuess] = useState(false);
@@ -103,7 +102,6 @@ export const useGuess = ({
   }, [endTime, handleResolveGuess]);
 
   const handleGuessSubmit = async (direction: "up" | "down") => {
-    setDirectionDialogOpen(false);
     if (!userId) return;
     setPlacingGuess(true);
     try {
@@ -121,8 +119,6 @@ export const useGuess = ({
   };
 
   return {
-    directionDialogOpen,
-    setDirectionDialogOpen,
     timer,
     handleGuessSubmit,
     placingGuess,

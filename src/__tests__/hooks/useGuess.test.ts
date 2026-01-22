@@ -105,10 +105,6 @@ describe("useGuess", () => {
       await result.current.handleGuessSubmit("up");
     });
 
-    await act(async () => {
-      vi.advanceTimersByTime(100);
-    });
-
     expect(result.current.timer).toBe(60);
   });
 
@@ -132,7 +128,6 @@ describe("useGuess", () => {
 
     await act(async () => {
       await Promise.resolve();
-      vi.advanceTimersByTime(100);
     });
 
     expect(result.current.timer).toBe(30);
@@ -249,7 +244,6 @@ describe("useGuess", () => {
 
     await act(async () => {
       await Promise.resolve();
-      vi.advanceTimersByTime(100);
     });
 
     expect(mockOnTimerRestart).toHaveBeenCalled();

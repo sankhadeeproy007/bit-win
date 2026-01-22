@@ -1,4 +1,4 @@
-import { useState, ReactNode, useCallback } from "react";
+import { useState, ReactNode, useCallback, useEffect } from "react";
 import {
   Container,
   Box,
@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { HelpOutline as HelpOutlineIcon } from "@mui/icons-material";
+import ConfettiBoom from "react-confetti-boom";
 import { useBitcoinPrice } from "@/hooks/useBitcoinPrice";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthModal } from "@/hooks/useAuthModal";
@@ -38,7 +39,9 @@ const Game = () => {
   } = usePlayerScore(user?.userId ?? null);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [directionDialogOpen, setDirectionDialogOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState<ReactNode>("");
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const successColor = theme.palette.success.main;
   const errorColor = theme.palette.error.main;
@@ -68,6 +71,9 @@ const Game = () => {
   const handleGuessResolve = useCallback(
     ({ isCorrect }: { isCorrect: boolean }) => {
       refetchScore();
+      if (isCorrect) {
+        setShowConfetti(true);
+      }
       setSnackbarMessage(
         isCorrect ? (
           <span>
@@ -98,14 +104,7 @@ const Game = () => {
     setSnackbarOpen(true);
   }, []);
 
-  const {
-    directionDialogOpen,
-    setDirectionDialogOpen,
-    timer,
-    handleGuessSubmit,
-    placingGuess,
-    resolvingGuess,
-  } = useGuess({
+  const { timer, handleGuessSubmit, placingGuess, resolvingGuess } = useGuess({
     userId: user?.userId ?? null,
     onSuccess: handleGuessSuccess,
     onResolve: handleGuessResolve,
@@ -121,8 +120,24 @@ const Game = () => {
     setDirectionDialogOpen(true);
   };
 
+  const handleDirectionDialogClose = (direction: "up" | "down") => {
+    setDirectionDialogOpen(false);
+    handleGuessSubmit(direction);
+  };
+
+  // Auto-hide confetti after 3 seconds
+  useEffect(() => {
+    if (showConfetti) {
+      const timer = setTimeout(() => {
+        setShowConfetti(false);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showConfetti]);
+
   return (
     <Container maxWidth="lg">
+      {showConfetti && <ConfettiBoom />}
       <Box className="mainContent">
         <Box className="gameArea">
           <Box className="logoContainer">
@@ -165,7 +180,7 @@ const Game = () => {
       <DirectionGuessDialog
         open={directionDialogOpen}
         onClose={() => setDirectionDialogOpen(false)}
-        onDirectionSelect={handleGuessSubmit}
+        onDirectionSelect={handleDirectionDialogClose}
         loading={placingGuess}
       />
 
