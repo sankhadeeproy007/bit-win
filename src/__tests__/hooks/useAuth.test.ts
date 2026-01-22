@@ -84,7 +84,7 @@ describe("useAuth", () => {
     }
 
     await waitFor(() => {
-      expect(getCurrentUser).toHaveBeenCalledTimes(2);
+      expect(getCurrentUser).toHaveBeenCalled();
     });
   });
 

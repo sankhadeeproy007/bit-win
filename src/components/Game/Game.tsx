@@ -38,6 +38,7 @@ const Game = () => {
   } = usePlayerScore(user?.userId ?? null);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [directionDialogOpen, setDirectionDialogOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState<ReactNode>("");
 
   const successColor = theme.palette.success.main;
@@ -98,14 +99,7 @@ const Game = () => {
     setSnackbarOpen(true);
   }, []);
 
-  const {
-    directionDialogOpen,
-    setDirectionDialogOpen,
-    timer,
-    handleGuessSubmit,
-    placingGuess,
-    resolvingGuess,
-  } = useGuess({
+  const { timer, handleGuessSubmit, placingGuess, resolvingGuess } = useGuess({
     userId: user?.userId ?? null,
     onSuccess: handleGuessSuccess,
     onResolve: handleGuessResolve,
@@ -119,6 +113,11 @@ const Game = () => {
       return;
     }
     setDirectionDialogOpen(true);
+  };
+
+  const handleDirectionDialogClose = (direction: "up" | "down") => {
+    setDirectionDialogOpen(false);
+    handleGuessSubmit(direction);
   };
 
   return (
@@ -165,7 +164,7 @@ const Game = () => {
       <DirectionGuessDialog
         open={directionDialogOpen}
         onClose={() => setDirectionDialogOpen(false)}
-        onDirectionSelect={handleGuessSubmit}
+        onDirectionSelect={handleDirectionDialogClose}
         loading={placingGuess}
       />
 
