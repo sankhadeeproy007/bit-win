@@ -1,13 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { placeGuess, getActiveGuessStatus, resolveGuess } from "../api/guess";
-import { GUESS_DURATION_MS } from "../constants/game";
+import { GUESS_DURATION_MS, Direction } from "../constants/game";
 
 interface UseGuessOptions {
   userId: string | null;
-  onSuccess?: (result: {
-    direction: "up" | "down";
-    priceAtGuess: number;
-  }) => void;
+  onSuccess?: (result: { direction: Direction; priceAtGuess: number }) => void;
   onResolve?: (result: { isCorrect: boolean }) => void;
   onTimerRestart?: () => void;
   onError?: (error: string) => void;
@@ -101,13 +98,13 @@ export const useGuess = ({
     };
   }, [endTime, handleResolveGuess]);
 
-  const handleGuessSubmit = async (direction: "up" | "down") => {
+  const handleGuessSubmit = async (direction: Direction) => {
     if (!userId) return;
     setPlacingGuess(true);
     try {
       const result = await placeGuess(userId, direction);
       onSuccess?.({
-        direction: result.direction,
+        direction: result.direction as Direction,
         priceAtGuess: result.priceAtGuess,
       });
       setEndTime(Date.now() + GUESS_DURATION_MS);

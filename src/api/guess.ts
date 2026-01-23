@@ -1,10 +1,10 @@
 import { generateClient } from "aws-amplify/data";
 import type { Schema } from "../../amplify/data/resource";
-import { GUESS_DURATION_MS } from "../constants/game";
+import { GUESS_DURATION_MS, Direction } from "../constants/game";
 
 const client = generateClient<Schema>();
 
-export const placeGuess = async (userId: string, direction: "up" | "down") => {
+export const placeGuess = async (userId: string, direction: Direction) => {
   const { data, errors } = await client.mutations.placeGuess(
     {
       playerId: userId,
@@ -18,7 +18,7 @@ export const placeGuess = async (userId: string, direction: "up" | "down") => {
   }
 
   return {
-    direction: data.direction as "up" | "down",
+    direction: data.direction as Direction,
     priceAtGuess: data.priceAtGuess,
   };
 };

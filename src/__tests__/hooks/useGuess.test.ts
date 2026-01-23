@@ -6,6 +6,7 @@ import {
   getActiveGuessStatus,
   resolveGuess,
 } from "../../api/guess";
+import { Direction } from "../../constants/game";
 
 vi.mock("../../api/guess", () => ({
   placeGuess: vi.fn(),
@@ -15,6 +16,10 @@ vi.mock("../../api/guess", () => ({
 
 vi.mock("../../constants/game", () => ({
   GUESS_DURATION_MS: 60000,
+  Direction: {
+    UP: "up",
+    DOWN: "down",
+  },
 }));
 
 describe("useGuess", () => {
@@ -57,9 +62,8 @@ describe("useGuess", () => {
 
   it("successfully places a guess and calls onSuccess", async () => {
     const mockGuessResult = {
-      direction: "up" as const,
+      direction: Direction.UP,
       priceAtGuess: 50000.5,
-      guessedAt: new Date().toISOString(),
     };
 
     vi.mocked(placeGuess).mockResolvedValue(mockGuessResult);
@@ -74,12 +78,12 @@ describe("useGuess", () => {
     );
 
     await act(async () => {
-      await result.current.handleGuessSubmit("up");
+      await result.current.handleGuessSubmit(Direction.UP);
     });
 
-    expect(placeGuess).toHaveBeenCalledWith("user-123", "up");
+    expect(placeGuess).toHaveBeenCalledWith("user-123", Direction.UP);
     expect(mockOnSuccess).toHaveBeenCalledWith({
-      direction: "up",
+      direction: Direction.UP,
       priceAtGuess: 50000.5,
     });
   });
@@ -88,7 +92,7 @@ describe("useGuess", () => {
     vi.useFakeTimers();
 
     vi.mocked(placeGuess).mockResolvedValue({
-      direction: "up",
+      direction: Direction.UP,
       priceAtGuess: 50000,
     });
 
@@ -102,7 +106,7 @@ describe("useGuess", () => {
     );
 
     await act(async () => {
-      await result.current.handleGuessSubmit("up");
+      await result.current.handleGuessSubmit(Direction.UP);
     });
 
     expect(result.current.timer).toBe(60);
