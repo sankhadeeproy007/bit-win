@@ -22,9 +22,12 @@ import { ScoreCard } from "@/components/ScoreCard/ScoreCard";
 import { GameTooltip } from "@/components/GameTooltip/GameTooltip";
 import logo from "@/assets/logo.png";
 import "./Game.css";
-import { GUESS_DURATION_SECONDS } from "@/constants/game";
-
-const SNACKBAR_MESSAGE_DURATION = 6000;
+import {
+  GUESS_DURATION_SECONDS,
+  SNACKBAR_MESSAGE_DURATION,
+  CONFETTI_DURATION,
+  Direction,
+} from "@/constants/game";
 
 const Game = () => {
   const theme = useTheme();
@@ -51,10 +54,10 @@ const Game = () => {
       direction,
       priceAtGuess,
     }: {
-      direction: "up" | "down";
+      direction: Direction;
       priceAtGuess: number;
     }) => {
-      const isUp = direction === "up";
+      const isUp = direction === Direction.UP;
       setSnackbarMessage(
         <span>
           Guess placed! Price: <strong>${priceAtGuess}</strong>. Direction:{" "}
@@ -120,17 +123,16 @@ const Game = () => {
     setDirectionDialogOpen(true);
   };
 
-  const handleDirectionDialogClose = (direction: "up" | "down") => {
+  const handleDirectionDialogClose = (direction: Direction) => {
     setDirectionDialogOpen(false);
     handleGuessSubmit(direction);
   };
 
-  // Auto-hide confetti after 3 seconds
   useEffect(() => {
     if (showConfetti) {
       const timer = setTimeout(() => {
         setShowConfetti(false);
-      }, 4000);
+      }, CONFETTI_DURATION);
       return () => clearTimeout(timer);
     }
   }, [showConfetti]);

@@ -6,11 +6,12 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+import { Direction } from "@/constants/game";
 
 interface DirectionGuessDialogProps {
   open: boolean;
   onClose: () => void;
-  onDirectionSelect: (direction: "up" | "down") => void;
+  onDirectionSelect: (direction: Direction) => void;
   loading: boolean;
 }
 
@@ -30,7 +31,7 @@ export const DirectionGuessDialog = ({
       </DialogContent>
       <DialogActions sx={{ padding: "20px" }}>
         <Button
-          onClick={() => onDirectionSelect("up")}
+          onClick={() => onDirectionSelect(Direction.UP)}
           variant="contained"
           color="success"
           disabled={loading}
@@ -38,7 +39,7 @@ export const DirectionGuessDialog = ({
           Going UP
         </Button>
         <Button
-          onClick={() => onDirectionSelect("down")}
+          onClick={() => onDirectionSelect(Direction.DOWN)}
           variant="contained"
           color="error"
           disabled={loading}
